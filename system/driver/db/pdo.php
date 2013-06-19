@@ -4,13 +4,14 @@
  * DB PDO Driver For Dingo Framework DB Library
  *
  * @author          Evan Byrne
- * @copyright       2008 - 2010
+ * @author          Jefersson Nathan
+ * @copyright       2008 - 2013
  * @project page    http://www.dingoframework.com
  */
 
 class pdo_db_connection
 {
-	public $con;
+	public static $con;
 	public $last_result;
 	public $driver;
 	
@@ -18,26 +19,33 @@ class pdo_db_connection
 	private $username;
 	private $password;
 	private $database;
+    
+    private static $_instance = NULL;
 	
 	
 	// Construct
 	// ---------------------------------------------------------------------------
 	public function __construct($driver,$host,$username,$password,$database)
 	{
-		$this->driver = $driver;
-		$this->host = $host;
-		$this->username = $username;
-		$this->password = $password;
-		$this->database = $database;
-		
-		try
-		{
-			$this->con = new pdo("{$this->driver}:dbname={$this->database};host={$this->host}",$this->username,$this->password);
-		}
-		catch(PDOException $e)
-		{
-			dingo_error(E_USER_ERROR,'DB Connection Failed. '.$e->getMessage());
-		}
+        if(! self::$_instance) {
+            $this->driver = $driver;
+            $this->host = $host;
+            $this->username = $username;
+            $this->password = $password;
+            $this->database = $database;
+
+            try
+            {
+                $this->con = new pdo("{$this->driver}:dbname={$this->database};host={$this->host}",$this->username,$this->password);
+                self::$_instance = TRUE;
+            }
+            catch(PDOException $e)
+            {
+                dingo_error(E_USER_ERROR,'DB Connection Failed. '.$e->getMessage());
+            }
+        }
+
+        return $this->con;
 	}
 	
 	
